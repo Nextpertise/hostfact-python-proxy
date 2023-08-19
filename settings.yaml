@@ -1,0 +1,14 @@
+---
+clients:
+  - description: "Client 1"
+    api_key: "1234567890"
+    allow_list:
+      - subnet: "0.0.0.0/0"
+        description: "All IPs"
+    permissions:
+      all: "write"
+      invoice: "write"
+
+hostfact_instances:
+  - hostname: "cptest1.nextpertise.nl"
+    api_key: "m3q17L1js3056N8d9Io384h"
