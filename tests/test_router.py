@@ -1,5 +1,7 @@
 import vcr
+import pytest
 from fastapi.testclient import TestClient
+from hostfact_python_client import hostfact_client
 from main import app
 
 ignore_hosts = ['testserver']
@@ -14,74 +16,67 @@ class CustomTestClient(TestClient):
         return super().request(*args, **kwargs)
 
 
+class HTTPXTransport:
+    def __init__(self, status_code: int, client: str = None):
+        self.status_code = status_code
+        self.client = client
+
+    def request(self, url: str, data: dict):
+        # Use CustomTestClient().post to send the request
+        response = client.post(url, data=data)
+
+        assert response.status_code == self.status_code
+        if self.client:
+            assert response.headers["X-CLIENT"] == self.client
+
+        # Return the response
+        return response
+
+
+# Set up the mocked client
 client = CustomTestClient(app)
 
 
 @vcr.use_cassette('tests/vcr_cassettes/test_list_debtors_invalid_api_key.yaml', ignore_hosts=ignore_hosts)
 def test_list_debtors_invalid_api_key():
-    response = client.post("/proxy/your-hostfact-server.com", data={
-        "api_key": "invalid_api_key",
-        "controller": "debtor",
-        "action": "list"
-    })
-    assert response.status_code == 403
-    assert response.content == b'{"detail":"Invalid API key"}'
+    with pytest.raises(Exception) as exc_info:
+        hf_client = hostfact_client.HostFact(url=f"https://testserver/proxy/your-hostfact-server.com", api_key="invalid_api_key", transport=HTTPXTransport(403))
+        response = hf_client.debtor.list()
+    assert str(exc_info.value) == 'HostFact error: {"detail":"Invalid API key"}'
 
 
 @vcr.use_cassette('tests/vcr_cassettes/test_list_debtors_invalid_hostname.yaml', ignore_hosts=ignore_hosts)
 def test_list_debtors_invalid_hostname():
-    response = client.post("/proxy/invalid-hostfact-server.com", data={
-        "api_key": "1234567890",
-        "controller": "debtor",
-        "action": "list"
-    })
-    assert response.status_code == 400
-    assert response.content == b'{"detail":"Invalid hostname"}'
+    with pytest.raises(Exception) as exc_info:
+        hf_client = hostfact_client.HostFact(url=f"https://testserver/proxy/invalid-hostfact-server.com", api_key="1234567890", transport=HTTPXTransport(400, 'Client 1'))
+        response = hf_client.debtor.list()
+    assert str(exc_info.value) == 'HostFact error: {"detail":"Invalid hostname"}'
 
 
 @vcr.use_cassette('tests/vcr_cassettes/test_list_debtors.yaml', ignore_hosts=ignore_hosts)
 def test_list_debtors_client1():
-    response = client.post("/proxy/your-hostfact-server.com", data={
-        "api_key": "1234567890",
-        "controller": "debtor",
-        "action": "list"
-    })
-    assert response.status_code == 200
-    assert response.json() == {'controller': 'debtor', 'action': 'list', 'status': 'success', 'date': '2023-08-22T08:44:16+02:00', 'totalresults': 206, 'currentresults': 206, 'offset': 0, 'debtors': [{'Identifier': '1', 'DebtorCode': 'DB100', 'CompanyName': 'DB100', 'Sex': 'm', 'Initials': 'D.', 'SurName': 'Code', 'EmailAddress': 'DB100@nextpertise.nl', 'Modified': '2023-01-01\n        20:29:39'}]}
-    assert response.headers['x-client'] == 'Client 1'
+    hf_client = hostfact_client.HostFact(url=f"https://testserver/proxy/your-hostfact-server.com", api_key="1234567890", transport=HTTPXTransport(200, 'Client 1'))
+    response = hf_client.debtor.list()
+    assert response == {'controller': 'debtor', 'action': 'list', 'status': 'success', 'date': '2023-08-22T08:44:16+02:00', 'totalresults': 206, 'currentresults': 206, 'offset': 0, 'debtors': [{'Identifier': '1', 'DebtorCode': 'DB100', 'CompanyName': 'DB100', 'Sex': 'm', 'Initials': 'D.', 'SurName': 'Code', 'EmailAddress': 'DB100@nextpertise.nl', 'Modified': '2023-01-01\n        20:29:39'}]}
 
 
 @vcr.use_cassette('tests/vcr_cassettes/test_list_debtors.yaml', ignore_hosts=ignore_hosts)
 def test_list_debtors_client2():
-    response = client.post("/proxy/your-hostfact-server.com", data={
-        "api_key": "0987654321",
-        "controller": "debtor",
-        "action": "list"
-    })
-    assert response.status_code == 200
-    assert response.json() == {'controller': 'debtor', 'action': 'list', 'status': 'success', 'date': '2023-08-22T08:44:16+02:00', 'totalresults': 206, 'currentresults': 206, 'offset': 0, 'debtors': [{'Identifier': '1', 'DebtorCode': 'DB100', 'CompanyName': 'DB100', 'Sex': 'm', 'Initials': 'D.', 'SurName': 'Code', 'EmailAddress': 'DB100@nextpertise.nl', 'Modified': '2023-01-01\n        20:29:39'}]}
-    assert response.headers['x-client'] == 'Client 2'
+    hf_client = hostfact_client.HostFact(url=f"https://testserver/proxy/your-hostfact-server.com", api_key="0987654321", transport=HTTPXTransport(200, 'Client 2'))
+    response = hf_client.debtor.list()
+    assert response == {'controller': 'debtor', 'action': 'list', 'status': 'success', 'date': '2023-08-22T08:44:16+02:00', 'totalresults': 206, 'currentresults': 206, 'offset': 0, 'debtors': [{'Identifier': '1', 'DebtorCode': 'DB100', 'CompanyName': 'DB100', 'Sex': 'm', 'Initials': 'D.', 'SurName': 'Code', 'EmailAddress': 'DB100@nextpertise.nl', 'Modified': '2023-01-01\n        20:29:39'}]}
 
 
 @vcr.use_cassette('tests/vcr_cassettes/test_list_debtors.yaml', ignore_hosts=ignore_hosts)
 def test_list_debtors_client3():
-    response = client.post("/proxy/your-hostfact-server.com", data={
-        "api_key": "5432109876",
-        "controller": "debtor",
-        "action": "list"
-    })
-    assert response.status_code == 200
-    assert response.json() == {'controller': 'debtor', 'action': 'list', 'status': 'success', 'date': '2023-08-22T08:44:16+02:00', 'totalresults': 206, 'currentresults': 206, 'offset': 0, 'debtors': [{'Identifier': '1', 'DebtorCode': 'DB100', 'CompanyName': 'DB100', 'Sex': 'm', 'Initials': 'D.', 'SurName': 'Code', 'EmailAddress': 'DB100@nextpertise.nl', 'Modified': '2023-01-01\n        20:29:39'}]}
-    assert response.headers['x-client'] == 'Client 3'
+    hf_client = hostfact_client.HostFact(url=f"https://testserver/proxy/your-hostfact-server.com", api_key="5432109876", transport=HTTPXTransport(200, 'Client 3'))
+    response = hf_client.debtor.list()
+    assert response == {'controller': 'debtor', 'action': 'list', 'status': 'success', 'date': '2023-08-22T08:44:16+02:00', 'totalresults': 206, 'currentresults': 206, 'offset': 0, 'debtors': [{'Identifier': '1', 'DebtorCode': 'DB100', 'CompanyName': 'DB100', 'Sex': 'm', 'Initials': 'D.', 'SurName': 'Code', 'EmailAddress': 'DB100@nextpertise.nl', 'Modified': '2023-01-01\n        20:29:39'}]}
 
 
 @vcr.use_cassette('tests/vcr_cassettes/test_list_debtors.yaml', ignore_hosts=ignore_hosts)
 def test_list_debtors_client4():
-    response = client.post("/proxy/your-hostfact-server.com", data={
-        "api_key": "1231231231",
-        "controller": "debtor",
-        "action": "list"
-    })
-    assert response.status_code == 403
-    assert response.json() == {"detail": "debtor list not allowed for this client"}
-    assert response.headers['x-client'] == 'Client 4'
+    with pytest.raises(Exception) as exc_info:
+        hf_client = hostfact_client.HostFact(url=f"https://testserver/proxy/your-hostfact-server.com", api_key="1231231231", transport=HTTPXTransport(403, 'Client 4'))
+        response = hf_client.debtor.list()
+    assert str(exc_info.value) == 'HostFact error: {"detail":"debtor list not allowed for this client"}'

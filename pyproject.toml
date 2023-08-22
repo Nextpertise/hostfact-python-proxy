@@ -1,10 +1,9 @@
 [tool.poetry]
 name = "hostfact-python-proxy"
-version = "0.1.0"
+version = "0.1.1"
 description = ""
 authors = ["Teun Ouwehand <teun@nextpertise.nl>"]
 readme = "README.md"
-
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -18,7 +17,7 @@ python-multipart = "^0.0.6"
 pytest = "^7.4"
 pytest-asyncio = "^0.21"
 pytest-vcr = "^1.0"
-httpx = "^0.24.1"
+httpx = "^0.24"
 
 
 [build-system]
