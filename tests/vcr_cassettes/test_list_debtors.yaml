@@ -1,0 +1,46 @@
+interactions:
+- request:
+    body: api_key=secret&controller=debtor&action=list
+    headers:
+      Connection:
+      - close
+      Content-Length:
+      - '61'
+      Content-Type:
+      - application/x-www-form-urlencoded
+      Host:
+      - your-hostfact-server.com
+    method: POST
+    uri: https://your-hostfact-server.com/Pro/apiv2/api.php
+  response:
+    body:
+      string: '{"controller":"debtor","action":"list","status":"success","date":"2023-08-22T08:44:16+02:00","totalresults":206,"currentresults":206,"offset":0,"debtors":[{"Identifier":"1","DebtorCode":"DB100","CompanyName":"DB100","Sex":"m","Initials":"D.","SurName":"Code","EmailAddress":"DB100@nextpertise.nl","Modified":"2023-01-01\n        20:29:39"}]}'
+    headers:
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Connection:
+      - close
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 22 Aug 2023 06:44:16 GMT
+      Expires:
+      - Thu, 19 Nov 1981 08:52:00 GMT
+      Pragma:
+      - no-cache
+      Server:
+      - Apache
+      Set-Cookie:
+      - hfbbc1db042=lt6aejnnql9fhq9mpg8l62k7jj; path=/; secure; HttpOnly
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-XSS-Protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+version: 1

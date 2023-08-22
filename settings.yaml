@@ -3,12 +3,37 @@ clients:
   - description: "Client 1"
     api_key: "1234567890"
     allow_list:
-      - subnet: "0.0.0.0/0"
-        description: "All IPs"
+      - subnet: "1.2.3.0/29"
+        description: "Mocked IP: 1.2.3.4"
     permissions:
-      all: "write"
-      invoice: "write"
+      debtor:
+        - "list"
+  - description: "Client 2"
+    api_key: "0987654321"
+    allow_list:
+      - subnet: "1.2.3.4"
+        description: "Mocked IP: 1.2.3.4"
+    permissions:
+      debtor:
+        - "*"
+  - description: "Client 3"
+    api_key: "5432109876"
+    allow_list:
+      - subnet: "1.2.3.4"
+        description: "Mocked IP: 1.2.3.4"
+    permissions:
+      all:
+        - "*"
+  - description: "Client 4"
+    api_key: "1231231231"
+    allow_list:
+      - subnet: "1.2.3.4"
+        description: "Mocked IP: 1.2.3.4"
+    permissions:
+      invoice:
+        - "list"
 
 hostfact_instances:
-  - hostname: "cptest1.nextpertise.nl"
-    api_key: "m3q17L1js3056N8d9Io384h"
+  - hostname: "your-hostfact-server.com"
+    api_key: "secret"
+

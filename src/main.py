@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException, Request, Path, Form
+from fastapi import FastAPI, Depends, HTTPException, Request, Response, Path, Form
 from pydantic import BaseModel
 from pydantic_settings import BaseSettings
 
@@ -26,7 +26,7 @@ class Client(BaseModel):
     description: str
     api_key: str
     allow_list: List[Subnet]
-    permissions: Dict[str, str]
+    permissions: Dict[str, List[str]]
 
 
 class Settings(BaseSettings):
@@ -71,34 +71,44 @@ def get_api_key_by_hostname(hostname: str):
     return api_key_by_hostname
 
 
+def get_instance_hostnames():
+    return [instance.hostname for instance in settings.hostfact_instances]
+
+
 @app.post("/proxy/{hostname}")
 async def proxy(
     request: Request,
+    response: Response,
     controller: Annotated[str, Form()],
     action: Annotated[str, Form()],
     client: Client = Depends(get_client_and_log_request),
     hostname: str = Path(...)
 ):
     form_data = await request.form()
+    headers = {"X-CLIENT": client.description}
+    response.headers.update(headers)
+
+    if hostname not in get_instance_hostnames():
+        raise HTTPException(status_code=400, detail="Invalid hostname", headers=headers)
 
     # Get IP address from X-REAL-IP header
     ip = request.headers.get("X-REAL-IP")
     if not ip:
         # Get ip from tcp socket
         ip = request.client.host
-    if not ip:
-        raise HTTPException(status_code=400, detail="X-REAL-IP header missing")
 
     # Check IP address
     if not any(ipaddress.ip_address(ip) in ipaddress.ip_network(subnet.subnet) for subnet in client.allow_list):
-        raise HTTPException(status_code=403, detail="IP not allowed")
+        raise HTTPException(status_code=403, detail="IP not allowed", headers=headers)
 
     # Check sub-api permissions
-    permission = client.permissions.get('all')
-    if not permission or permission != "write":
-        permission = client.permissions.get(controller)
-        if not permission or (action in ["add", "edit"] and permission != "read/write"):
-            raise HTTPException(status_code=403, detail=f"{controller} {action} not allowed for this client")
+    permission = client.permissions.get('all') and '*' in client.permissions.get('all')
+    if not permission:
+        permission = client.permissions.get(controller, [])
+        if not permission and '*' not in permission and action not in permission:
+            raise HTTPException(status_code=403,
+                                detail=f"{controller} {action} not allowed for this client",
+                                headers=headers)
 
     # Get upstream API key
     api_key = get_api_key_by_hostname(hostname)
@@ -108,6 +118,6 @@ async def proxy(
     method = getattr(getattr(client, controller), action)
     request_data = dict(form_data)
     request_data.pop("api_key")
-    response = method(**request_data)
+    response_body = method(**request_data)
 
-    return response
+    return response_body
