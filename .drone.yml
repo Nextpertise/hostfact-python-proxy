@@ -6,6 +6,8 @@ name: backend
 steps:
 - name: run tests
   image: python:3.11
+  environment:
+    PYTHONPATH: /drone/src/src
   commands:
   - pip install poetry
   - poetry install
