@@ -1,4 +1,4 @@
-FROM registry.nextpertise.tools/nextpertise/python-poetry:3.11
+FROM registry.nextpertise.tools/nextpertise/uvicorn-fastapi-poetry:python3.11
 
 # Copy using poetry.lock* in case it doesn't exist yet
 COPY ./pyproject.toml ./poetry.lock* /app/
