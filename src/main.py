@@ -105,7 +105,7 @@ async def proxy(
     permission = client.permissions.get('all') and '*' in client.permissions.get('all')
     if not permission:
         permission = client.permissions.get(controller, [])
-        if not permission and '*' not in permission and action not in permission:
+        if not permission or not ('*' in permission or action in permission):
             raise HTTPException(status_code=403,
                                 detail=f"{controller} {action} not allowed for this client",
                                 headers=headers)

@@ -61,6 +61,14 @@ def test_list_debtors_client1():
 
 
 @vcr.use_cassette('tests/vcr_cassettes/test_list_debtors.yaml', ignore_hosts=ignore_hosts)
+def test_show_debtor_client1():
+    with pytest.raises(Exception) as exc_info:
+        hf_client = hostfact_client.HostFact(url=f"https://testserver/proxy/your-hostfact-server.com", api_key="1234567890", transport=HTTPXTransport(403, 'Client 1'))
+        response = hf_client.debtor.show(Identifier=1)
+    assert str(exc_info.value) == 'HostFact error: {"detail":"debtor show not allowed for this client"}'
+
+
+@vcr.use_cassette('tests/vcr_cassettes/test_list_debtors.yaml', ignore_hosts=ignore_hosts)
 def test_list_debtors_client2():
     hf_client = hostfact_client.HostFact(url=f"https://testserver/proxy/your-hostfact-server.com", api_key="0987654321", transport=HTTPXTransport(200, 'Client 2'))
     response = hf_client.debtor.list()
