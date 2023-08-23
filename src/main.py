@@ -34,7 +34,7 @@ class Settings(BaseSettings):
     hostfact_instances: List[HostfactInstance]
 
     def __init__(self):
-        with open("settings.yaml", "r") as f:
+        with open("config/settings.yaml", "r") as f:
             yaml_data = yaml.safe_load(f)
         super().__init__(**yaml_data)
 
