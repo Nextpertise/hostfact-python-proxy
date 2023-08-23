@@ -92,6 +92,8 @@ async def proxy(
     # Get IP address from X-REAL-IP header
     ip = request.headers.get("X-REAL-IP")
     if not ip:
+        ip = request.headers.get("X-FORWARDED-FOR")
+    if not ip:
         # Get ip from tcp socket
         ip = request.client.host
 
