@@ -121,6 +121,6 @@ async def proxy(
     return response_body
 
 
-@app.post("/health")
+@app.get("/health")
 async def health():
     return {"status": "OK"}
