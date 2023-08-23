@@ -33,9 +33,6 @@ class Settings(BaseSettings):
     clients: List[Client]
     hostfact_instances: List[HostfactInstance]
 
-    class Config:
-        env_file_encoding = 'utf-8'
-
     def __init__(self):
         with open("settings.yaml", "r") as f:
             yaml_data = yaml.safe_load(f)
