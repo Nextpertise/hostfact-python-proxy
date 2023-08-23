@@ -21,9 +21,9 @@ class HTTPXTransport:
         self.status_code = status_code
         self.client = client
 
-    def request(self, url: str, data: dict):
+    def request(self, url: str, data: str, headers: dict = None, timeout: int = 30):
         # Use CustomTestClient().post to send the request
-        response = client.post(url, data=data)
+        response = client.post(url, data=data, headers=headers, timeout=timeout)
 
         assert response.status_code == self.status_code
         if self.client:
