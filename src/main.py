@@ -114,11 +114,16 @@ async def proxy(
     api_key = get_api_key_by_hostname(hostname)
 
     # Make the actual API call using the HostFact client
-    client = hostfact_client.HostFact(url=f"https://{hostname}/Pro/apiv2/api.php", api_key=api_key)
-    method = getattr(getattr(client, controller), action)
-    request_data = dict(form_data)
-    request_data.pop("api_key")
-    response_body = method(**request_data)
+    try:
+        client = hostfact_client.HostFact(url=f"https://{hostname}/Pro/apiv2/api.php", api_key=api_key)
+        method = getattr(getattr(client, controller), action)
+        request_data = dict(form_data)
+        request_data.pop("api_key")
+        response_body = method(**request_data)
+    except Exception as e:
+        raise HTTPException(status_code=500,
+                            detail=str(e),
+                            headers=headers)
 
     return response_body
 

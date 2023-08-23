@@ -82,6 +82,14 @@ def test_list_debtors_client3():
     assert response == {'controller': 'debtor', 'action': 'list', 'status': 'success', 'date': '2023-08-22T08:44:16+02:00', 'totalresults': 206, 'currentresults': 206, 'offset': 0, 'debtors': [{'Identifier': '1', 'DebtorCode': 'DB100', 'CompanyName': 'DB100', 'Sex': 'm', 'Initials': 'D.', 'SurName': 'Code', 'EmailAddress': 'DB100@nextpertise.nl', 'Modified': '2023-01-01\n        20:29:39'}]}
 
 
+@vcr.use_cassette('tests/vcr_cassettes/test_show_domain_error.yaml', ignore_hosts=ignore_hosts)
+def test_show_domains_client3():
+    with pytest.raises(Exception) as exc_info:
+        hf_client = hostfact_client.HostFact(url=f"https://testserver/proxy/your-hostfact-server.com", api_key="5432109876", transport=HTTPXTransport(500, 'Client 3'))
+        response = hf_client.domain.show(searchat="DebtorCode", searchfor="DB100")
+    assert str(exc_info.value) == 'HostFact error: {"detail":"HostFact error: [\'Ongeldig kenmerk voor domeinnaam\']"}'
+
+
 @vcr.use_cassette('tests/vcr_cassettes/test_list_debtors.yaml', ignore_hosts=ignore_hosts)
 def test_list_debtors_client4():
     with pytest.raises(Exception) as exc_info:

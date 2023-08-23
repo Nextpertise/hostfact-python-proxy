@@ -1,0 +1,43 @@
+interactions:
+- request:
+    body: api_key=secret&controller=domain&action=show&searchat=DebtorCode&searchfor=DB100
+    headers:
+      content-type:
+      - application/x-www-form-urlencoded
+      host:
+      - your-hostfact-server.com
+    method: POST
+    uri: https://your-hostfact-server.com/Pro/apiv2/api.php
+  response:
+    content: '{"controller":"domain","action":"show","status":"error","date":"2023-08-23T08:42:11+02:00","errors":["Ongeldig
+      kenmerk voor domeinnaam"]}'
+    headers:
+      Cache-Control:
+      - no-store, no-cache, must-revalidate
+      Connection:
+      - Keep-Alive
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 23 Aug 2023 06:42:11 GMT
+      Expires:
+      - Thu, 19 Nov 1981 08:52:00 GMT
+      Keep-Alive:
+      - timeout=5, max=100
+      Pragma:
+      - no-cache
+      Server:
+      - Apache
+      Set-Cookie:
+      - hfbf559bb5f=oef8nap0gt4ho9vb38occ0grn8; path=/; secure; HttpOnly
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-XSS-Protection:
+      - 1; mode=block
+    http_version: HTTP/1.1
+    status_code: 200
+version: 1
