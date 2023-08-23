@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from fastapi import FastAPI, Depends, HTTPException, Request, Response, Path, Form
 from pydantic import BaseModel
 from pydantic_settings import BaseSettings
