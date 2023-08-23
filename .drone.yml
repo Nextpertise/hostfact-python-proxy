@@ -10,8 +10,24 @@ steps:
   - pip install poetry
   - poetry install
   - poetry run pytest
+- name: package
+  image: registry.nextpertise.tools/nextpertise-proxy/plugins/docker
+  privileged: true
+  settings:
+    repo: registry.nextpertise.tools/nextpertise/hostfact-python-proxy
+    registry: registry.nextpertise.tools
+    username:
+      from_secret: platform_harbor_username
+    password:
+      from_secret: platform_harbor_password
+    tags:
+      - latest
+      - ${DRONE_BRANCH}
 
 trigger:
   event:
     exclude:
     - pull_request
+
+image_pull_secrets:
+  - platform_harbor_pull_secrets
