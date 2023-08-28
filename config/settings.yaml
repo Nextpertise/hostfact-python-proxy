@@ -8,6 +8,8 @@ clients:
     permissions:
       debtor:
         - "list"
+    instances:
+      - your-hostfact-server.com
   - description: "Client 2"
     api_key: "0987654321"
     allow_list:
@@ -16,6 +18,8 @@ clients:
     permissions:
       debtor:
         - "*"
+    instances:
+      - your-hostfact-server.com
   - description: "Client 3"
     api_key: "5432109876"
     allow_list:
@@ -24,6 +28,8 @@ clients:
     permissions:
       all:
         - "*"
+    instances:
+      - your-hostfact-server.com
   - description: "Client 4"
     api_key: "1231231231"
     allow_list:
@@ -32,6 +38,8 @@ clients:
     permissions:
       invoice:
         - "list"
+    instances:
+      - your-hostfact-server.com
 
 hostfact_instances:
   - hostname: "your-hostfact-server.com"
