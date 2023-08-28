@@ -28,6 +28,7 @@ class Client(BaseModel):
     api_key: str
     allow_list: List[Subnet]
     permissions: Dict[str, List[str]]
+    instances: List[str]
 
 
 class Settings(BaseSettings):
@@ -52,11 +53,15 @@ class RequestBody(BaseModel):
 def get_client_and_log_request(api_key: Annotated[str, Form()],
                                controller: Annotated[str, Form()],
                                action: Annotated[str, Form()],
+                               hostname: str = Path(...)
                                ):
     client_by_api_key = next((client for client in settings.clients if client.api_key == api_key), None)
     if not client_by_api_key:
         logger.info(f"Controller: {controller}, Action: {action}, API key: {api_key}, Status: Invalid API key")
         raise HTTPException(status_code=403, detail="Invalid API key")
+    if hostname not in client_by_api_key.instances:
+        logger.info(f"Controller: {controller}, Action: {action}, API key: {api_key}, Status: Invalid hostname")
+        raise HTTPException(status_code=403, detail="Invalid hostname")
     logger.info(f"Controller: {controller}, Action: {action}, Client: {client_by_api_key.description}")
     return client_by_api_key
 
